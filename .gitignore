@@ -1,0 +1,11 @@
+__pycache__/
+.DS_Store
+*.egg-info/
+*.vscode/
+.coverage
+htmlcov/
+.venv/
+.pytest_cache/
+.hypothesis/
+dist/
+/rust/target/
