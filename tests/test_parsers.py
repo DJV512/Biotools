@@ -238,3 +238,7 @@ def test_parse_sequences_rejects_duplicate_names():
 
     with pytest.raises(ValueError):
         output = btp.parse_fasta_string(fasta)
+
+def test_parse_fasta_string_empty_input():
+    with pytest.raises(ValueError, match="No sequences found"):
+        btp.parse_fasta_string("")

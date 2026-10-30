@@ -228,6 +228,8 @@ for aa in AMINO_ACIDS:
 # Affine gap scoring for protein alignment
 PROTEIN_GAP_OPEN = -10
 PROTEIN_GAP_EXTEND = -1
+PROFILE_GAP_OPEN = -10
+PROFILE_GAP_EXTEND = -3
 
 # MSA gap scoring
 PROTEIN_GAP = -8

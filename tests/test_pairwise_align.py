@@ -185,7 +185,6 @@ def test_rust_matches_python_affine_gap():
 
 proteins = btparse.parse_fasta_file(Path(__file__).parent / "data" / "synthetic_proteins.fasta", allow_x = True)
 
-
 @pytest.mark.parametrize("protein1, protein2", list(combinations(proteins, 2)))
 def test_rust_matches_python(protein1, protein2):
     python1, python2 = btpa.pairwise_protein(protein1, protein2)

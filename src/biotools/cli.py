@@ -7,6 +7,7 @@ lazy from . import sequences as bts
 lazy from . import comparisons as btcomp
 lazy from . import pairwise_align as bta
 lazy from . import models as btm
+lazy from . import pairwise_align as btpa
 lazy import biotools_rust as btrust
 
 
@@ -245,7 +246,7 @@ def main():
         help = "Specfiy how many residues of the alignment are rendered per line (image only). Defaults to 300."
     )
     parser_pairwise_protein.add_argument(
-        "--real_ruler",
+        "--real-ruler",
         nargs="?",
         const = 1,
         type = _positive_int,
@@ -264,6 +265,12 @@ def main():
         "--consensus",
         action = "store_true",
         help = "This option will add a consensus sequence to the bottom of the alignment."
+    )
+    parser_pairwise_protein.add_argument(
+        "--backend",
+        choices=("python", "rust"),
+        default="rust",
+        help = "Choose whether to use the rust implementation (compiled, default) or python (much slower for large numbers of sequences.)"
     )
     parser_pairwise_protein.set_defaults(func=cli_protein_align)
 
@@ -289,12 +296,12 @@ def main():
     parser_msa.add_argument(
         "--wrap",
         metavar = "N",
-        type= _positive_int,
-        default=300,
+        type = _positive_int,
+        default = 300,
         help = "Specify how many residues of the alignment are rendered per line (image only). Defaults to 300."
     )
     parser_msa.add_argument(
-        "--real_ruler",
+        "--real-ruler",
         nargs="?",
         const = 1,
         type = _positive_int,
@@ -309,6 +316,26 @@ def main():
         metavar = "OUTPUT_FILE",
         help = "Save alignment to FILE, or choose a filename interactively."
     )
+    parser_msa.add_argument(
+        "--backend",
+        choices=("python", "rust"),
+        default="rust",
+        help = "Choose whether to use the rust implementation (compiled, default) or python (much slower for large numbers of sequences.)"
+    )
+    parser_msa.add_argument(
+        "--gap-extend",
+        metavar = "N",
+        type = _non_positive_int,
+        default = -3,
+        help = "Specify the profile merge level affine gap extend penalty. Defaults to -3."
+    )
+    parser_msa.add_argument(
+        "--gap-open",
+        metavar = "N",
+        type = _non_positive_int,
+        default = -10,
+        help = "Specify the profile merge level affine gap open penalty. Defaults to -10."
+        )
     parser_msa.set_defaults(func=cli_msa)
 
 
@@ -444,7 +471,13 @@ def cli_dna_align(args):
 def cli_protein_align(args):
     protein1 = btm.Protein("", args.seq1, allow_x=True)
     protein2 = btm.Protein("", args.seq2, allow_x=True)
-    align1, align2 = btrust._align_protein(protein1.sequence, protein2.sequence)
+
+    if args.backend == "rust":
+        align1, align2 = btrust._align_protein(protein1.sequence, protein2.sequence)
+        align1 = list(align1)
+        align2 = list(align2)
+    else:
+        align1, align2 = btpa.pairwise_protein(protein1, protein2)
 
     profile = btm.Profile(
         name = [args.name1 or "1", args.name2 or "2"],
@@ -461,7 +494,7 @@ def cli_protein_align(args):
 
 
 def cli_msa(args):
-    profile = btmsa.msa(args.file)
+    profile = btmsa.msa(args.file, args.backend, int(args.gap_open), int(args.gap_extend))
     if args.consensus:
         profile = btmsa.add_consensus(profile)
         consensus = True
@@ -508,9 +541,22 @@ def _output_protein_alignment(profile:btm.Profile, args, consensus:bool):
 
 
 def _positive_int(value:str):
-    value = int(value)
-    if value < 1:
-        raise argparse.ArgumentTypeError("Ruler start must be a positive integer")
+    try:
+        value = int(value)
+        if value < 1:
+            raise ValueError
+    except ValueError:
+        raise argparse.ArgumentTypeError("Ruler start must be a positive integer.")
+    return value
+
+
+def _non_positive_int(value:str):
+    try:
+        value = int(value)
+        if value > 0:
+            raise ValueError
+    except ValueError:
+        raise argparse.ArgumentTypeError("Gap penalty must be a non positive integer.")
     return value
 
 

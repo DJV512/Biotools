@@ -55,13 +55,21 @@ def parse_fasta_string(
 
     seq_list = sequences.splitlines()
 
-    if seq_list[0] == sequences:
+    if not seq_list:
         raise ValueError("No sequences found.")
+
+    if len(seq_list) % 2 != 0:
+        raise ValueError("Each FASTA header must be followed by a sequence line.")
 
     parsed_sequences = []
     for i in range(0, len(seq_list), 2):
-        if not seq_list[i].startswith(">") or seq_list[i+1].startswith(">"):
-            raise ValueError("Invalid input. Please format as '>name1\\nsequence1\\n>name2\\nsequence2\\n>name3\\nsequence3'")
+        header = seq_list[i]
+        sequence = seq_list[i+1].strip()
+        if not header.startswith(">") or sequence.startswith(">"):
+            raise ValueError("Invalid input. Please format as $'>name1\\nsequence1\\n>name2\\nsequence2\\n>name3\\nsequence3'")
+
+        if not sequence:
+            raise ValueError(f"Missing sequence for header {header!r}")
         
         new_seq = btm.Protein(
             name = seq_list[i].replace(">", "").strip(),

@@ -4,7 +4,7 @@ requires-python = ">=3.15"
 
 [[package]]
 name = "biotools"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "biotools-rust" },
@@ -37,7 +37,7 @@ dev = [
 
 [[package]]
 name = "biotools-rust"
-version = "0.1.0"
+version = "0.2.0"
 source = { directory = "rust" }
 
 [[package]]

@@ -2,6 +2,7 @@ from . import constants as btc
 from . import decorators as btd
 from . import models as btm
 from math import inf
+from operator import itemgetter
 
 def _sigma_dna(str1:str, str2:str) -> int:
     '''
@@ -116,7 +117,7 @@ def _global_protein_backtrack(
         (score_diag[(i, j)][0], "diag"),
         (score_hori[(i, j)][0], "hori"),
         (score_vert[(i, j)][0], "vert"),
-        key = lambda x : x[0]
+        key = itemgetter(0)
     )
 
     while i > 0 or j > 0:
@@ -198,21 +199,21 @@ def pairwise_protein(protein1:btm.Protein, protein2:btm.Protein) -> tuple[list[s
                 (score_diag[(i - 1, j - 1)][0] + residue_blosum_score, "diag"),
                 (score_hori[(i - 1, j - 1)][0] + residue_blosum_score, "hori"),
                 (score_vert[(i - 1, j - 1)][0] + residue_blosum_score, "vert"),
-                key = lambda x: x[0]
+                key = itemgetter(0)
             )
             
             #Current pair is a gap in sequence 2
             score_vert[(i, j)] = max(
                 (score_diag[(i - 1, j)][0] + btc.PROTEIN_GAP_OPEN, "diag"),
                 (score_vert[(i - 1, j)][0] + btc.PROTEIN_GAP_EXTEND, "vert"),
-                key = lambda x: x[0]
+                key = itemgetter(0)
             )
 
             #Current pair is a gap in sequence 1
             score_hori[(i, j)] = max(
                 (score_diag[(i, j - 1)][0] + btc.PROTEIN_GAP_OPEN, "diag"),
                 (score_hori[(i, j - 1)][0] + btc.PROTEIN_GAP_EXTEND, "hori"),
-                key = lambda x: x[0]
+                key = itemgetter(0)
             )
 
     return _global_protein_backtrack(seq1, seq2, score_diag, score_hori, score_vert, length1-1, length2-1)

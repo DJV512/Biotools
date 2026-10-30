@@ -49,3 +49,18 @@ pub fn aa_index(aa: &str) -> usize {
         _   => panic!("Uknown amino acid."),
     }
 }   
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Direction {
+    Diag,
+    Vert,
+    Hori,
+    Start,
+    Impossible,
+}
+
+#[derive(Debug, Clone)]
+pub struct Profile {
+    pub names: Vec<String>,
+    pub sequences: Vec<Vec<char>>,
+}

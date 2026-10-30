@@ -1,6 +1,6 @@
 [project]
 name = "biotools"
-version = "0.1.0"
+version = "0.2.0"
 description = "Command-line utilities for DNA and protein sequence analysis."
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -28,3 +28,12 @@ build-backend = "uv_build"
 
 [tool.uv.sources]
 biotools-rust = { path = "./rust" }
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=biotools",
+    "--cov-branch",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "-vv",
+]

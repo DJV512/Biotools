@@ -10,6 +10,7 @@ BioTools is currently under active development.
 
 - Search for sequences and report their positions
 - Returns the length of a sequence
+- Reports the percent identity between all sequences from a FASTA file
 
 ### DNA sequences
 
@@ -19,17 +20,28 @@ BioTools is currently under active development.
 - Calculate GC content
 - Pairwise DNA sequence alignment
 
-### Protein sequences
-
+### Protein sequence tools
 - Calculate net charge
 - Calculate molecular weight
 - Calculate extinction coefficient
 - Search for and highlight N-linked glycosylation sites
 - Compare two sequences and look for conserved motifs of varying lengths
-- Pairwise protein sequence alignment
-- Multiple sequence alignment from FASTA files
+- Pairwise sequence alignment from two raw sequence arguments
+    - Default implementation in Rust, Python functions available
+- Multiple sequence alignment (MSA) from FASTA files or FASTA-Formatted strings
+    - Default implementation in Rust, Python functions available
+
+
+### Rendering
+- Alignments output to terminal (when no --save argument provided)
 - Generate publication-quality PNG and TIFF alignment images
-- Display alignment differences relative to a reference sequence
+    - Save Pairwise DNA and protein alignments
+    - Save Multiple Sequence Alignment with proteins
+    - Alignment row length can be tuned with --wrap
+    - Argument --real-ruler displays amino acid residue number based on the first sequence, skipping gaps
+- Argument --diff displays alignment differences relative to a reference sequence
+- MSA optionally adds a consensus sequence with --consensus
+
 
 ## Installation/Requirements
 
@@ -73,7 +85,7 @@ uv python install 3.15
 
 Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/DJV512/biotools/
 cd biotools
 ```
 
@@ -154,25 +166,39 @@ $ biotools dna_align atctcatgcgtcgtacgtacgt tgcatgcgtacgtagtcgatgtc
 <img src="docs/images/dna_pairwise_align.png" alt="Pairwise DNA Alignment">
 
 #### Multiple Protein Sequence Alignment
-BioTools implements a custom progressive multiple protein sequence alignment algorithm using a guide tree and BLOSUM62-based pairwise scoring. Expensive calculations are performed using a rust extension.
+BioTools implements a custom progressive multiple protein sequence alignment algorithm using an average-linkage guide tree, BLOSUM62-based scoring, and tunable affine gap open and extension penalties. Optional "X" residues can be used as alignment anchors. Computationally intensive operations are accelerated using a Rust extension.
 
 
 ```console
-$ biotools msa example.fasta --save alignment.png --diff --wrap 100
+$ biotools msa docs/examples/synthetic_example_proteins.fasta --save docs/images/synthetic_alignment.png --diff --wrap 100
 ```
-<img src="docs/images/alignment.png" alt="Multiple Protein Sequence Alignment">
+<img src="docs/images/synthetic_alignment.png" alt="Multiple Protein Sequence Alignment">
 
 Conservative substitutions are shown in purple, non-conservative substitutions in red, and gaps as black dashes. When `--diff` is enabled, identities to the reference sequence are shown as dots.
 
+The sequences used in this example are available in
+[synthetic_example_proteins.fasta](docs/examples/synthetic_example_proteins.fasta).
+
+#### Rust vs Python
+The computationally intensive sequence alignment algorithms in BioTools were originally implemented in Python and subsequently ported to Rust to improve performance.
+The Rust implementations are used by default, but the original Python implementations remain available for comparison, testing, and experimentation.
+When BioTools is installed, you can select the Python implementation for supported alignment commands using:
+
+```console
+biotools msa sequences.fasta --backend python
+```
+
+Omitting --backend uses the Rust implementation.
+
+**Installation note:** The current BioTools installation requires the Rust extension, even when using the Python backend. Python-only installation is not currently supported.
 
 ## Development status
 
 BioTools is currently in development. Interfaces and command-line options
 may change before version 1.0. Known limitations include:
 
-- Multiple sequence alignment currently uses linear rather than affine gap penalties.
-- Multiple sequence alignment current supports proteins only.
-- DNA alignments do not currently support image output.
+- Multiple sequence alignment currently supports proteins only.
+- DNA alignment image output currently limited to PNG, and does not support some arguments.
 - Printing Cluster trees is VERY rough at the moment. 
 
 ## License

@@ -5,6 +5,7 @@ lazy from . import constants as btc
 lazy from . import models as btm
 lazy from . import pairwise_align as btpa
 lazy from . import parsers as btp
+import biotools_rust as btrust
 
 
 def motifs(protein1:btm.Protein, protein2:btm.Protein) -> dict:
@@ -69,7 +70,7 @@ def identity(
     identities = {}
 
     for protein1, protein2 in combinations(sequences, 2):
-        align1, align2 = btpa.pairwise_protein(protein1, protein2)
+        align1, align2 = btrust._align_protein(protein1.sequence, protein2.sequence)
         length = len(align1)
         identical = sum(1 for aa1, aa2 in zip(align1, align2, strict=True) if aa1==aa2)
         percent_identity = identical/length

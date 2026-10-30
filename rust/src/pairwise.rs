@@ -1,18 +1,8 @@
 use crate::constants::BLOSUMX;
 use crate::constants::aa_index;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Direction {
-    Diag,
-    Vert,
-    Hori,
-    Start,
-    Impossible,
-}
-
+use crate::constants::Direction;
 
 pub fn pairwise_protein(seq1: &str, seq2: &str) -> (String, String) {
-    // println!("Aligning {seq1} against {seq2}");
 
     // Set Gap penalty constants, and a highly negative number for the impossible boundaries
     const GAP_OPEN:i32 = -10;

@@ -3,6 +3,7 @@ from . import models as btm
 lazy from PIL import Image, ImageDraw, ImageFont
 lazy from collections import Counter
 lazy from math import ceil
+from importlib.resources import files
 
 ####################################
 ##### Public Facing Functions ######
@@ -37,11 +38,13 @@ def save_dna_pairwise_alignment(alignments:list[list[str]], filename:str, *, sta
     # Analyze the DNA alignments for matches, mismatches, and gaps
     analyzed = _analyze_dna_alignments(alignments, diff)
 
+    # Import font
+    font_path = files("biotools").joinpath("fonts", "JetBrainsMono-Regular.ttf")
 
     # Set Image parameters
     num_lines = len(alignments)
     char_count = len(alignments[0])
-    font = ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", 20)
+    font = ImageFont.truetype(font_path, 20)
     char_width = font.getlength("A")
     ascent, descent = font.getmetrics()
     line_height = ascent + descent
@@ -111,13 +114,16 @@ def render_protein_alignment_image(
 
     # Analyze the protein alignments for matches, mismatches, conservative substitutions, and gaps
     parsed_profile = _analyze_msa(final_alignment, diff, consensus)
-    max_name_length = max(len(x) for x in final_alignment.name)    
+    max_name_length = max(len(x) for x in final_alignment.name)  
 
+    # Import font
+    font_path = files("biotools").joinpath("fonts", "JetBrainsMono-Regular.ttf")  
+    
     # Set Image parameters
     name_width = max_name_length + 3
     num_lines = len(final_alignment.name)
     char_count = len(final_alignment.alignment[0])
-    font = ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", 30 * scale)
+    font = ImageFont.truetype(font_path, 30 * scale)
     char_width = font.getlength("A")
     ascent, descent = font.getmetrics()
     line_height = ascent + descent

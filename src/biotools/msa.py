@@ -1,27 +1,33 @@
 from itertools import combinations
 from collections import Counter
 from pathlib import Path
+from operator import itemgetter
 from math import inf
 from copy import copy
 from . import models as btm
-from . import pairwise_align as btpa
 from . import constants as btc
 from . import parsers as btp
+from . import pairwise_align as btpa
 import biotools_rust as btrust
 
 
-
 def _build_pairwise_alignments(
-        sequences: list[btm.Protein]
+        sequences: list[btm.Protein],
+        backend: str,
     ) -> list[btm.AlignedProteinPair]:
     '''
     Private function for performing pairwise alignments of all pairs of Proteins in the sequences list.
     '''
     pairwise_alignments = []
     for protein1, protein2 in combinations(sequences, 2):
-        align1, align2 = btrust._align_protein(protein1.sequence, protein2.sequence)
-        align1 = list(align1)
-        align2 = list(align2)
+
+        if backend == "rust":
+            align1, align2 = btrust._align_protein(protein1.sequence, protein2.sequence)
+            align1 = list(align1)
+            align2 = list(align2)
+        else:
+            align1, align2 = btpa.pairwise_protein(protein1, protein2)
+
         distance = _distance_score(align1, align2)
         new_alignment = btm.AlignedProteinPair(
             protein1 = protein1,
@@ -205,138 +211,139 @@ def _msa_sigma(
 def _global_msa_backtrack(
         left:btm.Profile, 
         right:btm.Profile, 
-        traceback:dict[tuple[int, int], str], 
+        score_diag:dict[tuple[int, int], tuple[float, str]],
+        score_vert:dict[tuple[int, int], tuple[float, str]],
+        score_hori:dict[tuple[int, int], tuple[float, str]],
         i:int, 
-        j:int, 
-        final_profile:btm.Profile|None = None
+        j:int,
     ) -> btm.Profile:
     '''
-    Private recursive method for taking a profile-profile score table and backtracking to assemble the optimal alignment.
+    Private method for taking affine profile-profile score tables and backtracking to assemble the optimal alignment.
     '''
 
-    #Initialize the final_profile at the first call to this function
-    if final_profile is None:
-        total_sequences = len(left.alignment)+len(right.alignment)
-        final_profile = btm.Profile(name=left.name + right.name, alignment=[[] for _ in range(total_sequences)])
+    #Initialize the final_profile
+    total_sequences = len(left.alignment)+len(right.alignment)
+    final_profile = btm.Profile(name=left.name + right.name, alignment=[[] for _ in range(total_sequences)])
+
+    _, predecessor = max(
+        (score_diag[i,j][0], "diag"),
+        (score_vert[i,j][0], "vert"),
+        (score_hori[i,j][0], "hori"),
+        key = itemgetter(0)
+    )
 
     #Base case
-    if i == 0 or j == 0:
+    while i > 0 or j > 0:
 
-        if i > 0:
-            for x in range (1, i+1):
-                for z, alignment in enumerate(left.alignment):
-                    final_profile.alignment[z].append(alignment[x])
-                for z, alignment in enumerate(right.alignment):
-                    final_profile.alignment[len(left.alignment) + z].append("-")
+        if predecessor == "diag":
+            predecessor = score_diag[i, j][1]
+            for z, alignment in enumerate(left.alignment):
+                final_profile.alignment[z].append(alignment[i])
+            for z, alignment in enumerate(right.alignment):
+                final_profile.alignment[len(left.alignment) + z].append(alignment[j])
+            i -= 1
+            j -= 1
 
-        if j > 0:
-            for x in range (1, j+1):
-                for z, alignment in enumerate(left.alignment):
-                    final_profile.alignment[z].append("-")
-                for z, alignment in enumerate(right.alignment):
-                    final_profile.alignment[len(left.alignment) + z].append(alignment[x])
+        elif predecessor == "hori":
+            predecessor = score_hori[i, j][1]
+            for z, alignment in enumerate(left.alignment):
+                final_profile.alignment[z].append("-")
+            for z, alignment in enumerate(right.alignment):
+                final_profile.alignment[len(left.alignment) + z].append(alignment[j])
+            j -= 1
 
-        return final_profile
+        else:
+            predecessor = score_vert[i, j][1]
+            for z, alignment in enumerate(left.alignment):
+                final_profile.alignment[z].append(alignment[i])
+            for z, alignment in enumerate(right.alignment):
+                final_profile.alignment[len(left.alignment) + z].append("-")
+            i -= 1
 
-    #Recursive calls based on the traceback matrix
-    if traceback[i,j] == "diag":
-        _global_msa_backtrack(left, right, traceback, i-1, j-1, final_profile)
-        for z, alignment in enumerate(left.alignment):
-            final_profile.alignment[z].append(alignment[i])
-        for z, alignment in enumerate(right.alignment):
-            final_profile.alignment[len(left.alignment) + z].append(alignment[j])
-        return final_profile
+    for alignment in final_profile.alignment:
+        alignment.reverse()
 
-    elif traceback[i,j] == "vert":
-        _global_msa_backtrack(left, right, traceback, i-1, j, final_profile)
-        for z, alignment in enumerate(left.alignment):
-            final_profile.alignment[z].append(alignment[i])
-        for z, alignment in enumerate(right.alignment):
-            final_profile.alignment[len(left.alignment) + z].append("-")
-        return final_profile
-
-    else:
-        _global_msa_backtrack(left, right, traceback, i, j-1, final_profile)
-        for z, alignment in enumerate(left.alignment):
-            final_profile.alignment[z].append("-")
-        for z, alignment in enumerate(right.alignment):
-            final_profile.alignment[len(left.alignment) + z].append(alignment[j])
-        return final_profile
-
-
+    return final_profile
 
 
 def _merge(
         left: btm.Profile,
-        right: btm.Profile
-    ) -> tuple[btm.Profile, dict[tuple[int, int], str]]:
+        right: btm.Profile,
+        gap_open: int,
+        gap_extend: int,
+    ) -> btm.Profile:
     '''
     Private function for merging Proteins and Profiles during multiple alignment.
     '''
 
+    left = btm.Profile(name=left.name, alignment=[[" ", *row] for row in left.alignment])
+    right = btm.Profile(name=right.name, alignment=[[" ", *row] for row in right.alignment])
     left_profiles = left.alignment
     right_profiles = right.alignment
-
-    for profile in left_profiles:
-        profile.insert(0, " ")
-    for profile in right_profiles:
-        profile.insert(0, " ")
-
     left_length = len(left_profiles[0])
     right_length = len(right_profiles[0])
 
-    traceback = {}
+    score_diag = {}
+    score_hori = {}
+    score_vert = {}
 
-    #Pre-populate the score matrix with the horizontal first row and vertical first column
-    score = {(0, 0): 0}
-
-    left_gap_column = ["-"] * len(left_profiles)
-    right_gap_column = ["-"] * len(right_profiles)
+    # Initialize the affine gap scoring matrices
+    score_diag[0, 0] = (0, "start")
+    score_hori[0, 0] = (-inf, "impossible")
+    score_vert[0, 0] = (-inf, "impossible")
 
     # Top row scores
     for j in range(1, right_length):
-        right_column = [profile[j] for profile in right_profiles]
-
-        score[0, j] = (
-            score[0, j - 1]
-            + _msa_sigma(left_gap_column, right_column)
-        )
+        score_diag[0, j] = (-inf, "impossible")
+        score_vert[0, j] = (-inf, "impossible")
+        score_hori[0, j] = (gap_open + (j-1) * gap_extend, "diag" if j == 1 else "hori")
 
     # First column scores
     for i in range(1, left_length):
-        left_column = [profile[i] for profile in left_profiles]
-
-        score[i, 0] = (
-            score[i - 1, 0]
-            + _msa_sigma(left_column, right_gap_column)
-        )
+        score_diag[i, 0] = (-inf, "impossible")
+        score_hori[i, 0] = (-inf, "impossible")
+        score_vert[i, 0] = (gap_open + (i-1) * gap_extend, "diag" if i == 1 else "vert")
 
     # Interior scores
+    # Iterate over the length of profile 1
     for i in range(1, left_length):
         left_column = [profile[i] for profile in left_profiles]
 
+        # Iterate over the length of profile 2
         for j in range(1, right_length):
             right_column = [profile[j] for profile in right_profiles]
 
-            vertical_score = score[i - 1, j] + _msa_sigma(left_column, right_gap_column)
-            horizontal_score = score[i, j - 1] + _msa_sigma(left_gap_column, right_column)
-            diagonal_score = score[i - 1, j - 1] + _msa_sigma(left_column, right_column)
-            best_score = max(vertical_score, horizontal_score, diagonal_score)
+            # Current pair is a residue column vs residue column
+            column_v_columm_blosum_score = _msa_sigma(left_column, right_column)
+            score_diag[i, j] = max(
+                (score_diag[i - 1, j - 1][0] + column_v_columm_blosum_score, "diag"),
+                (score_hori[i - 1, j - 1][0] + column_v_columm_blosum_score, "hori"),
+                (score_vert[i - 1, j - 1][0] + column_v_columm_blosum_score, "vert"),
+                key = itemgetter(0)
+            )
 
-            score[i,j] = best_score
+            # Current pair is a gap column in profile 2
+            score_vert[i, j] = max(
+                (score_diag[i - 1, j][0] + gap_open, "diag"),
+                (score_vert[i - 1, j][0] + gap_extend, "vert"),
+                key = itemgetter(0)
+            )
 
-            if diagonal_score == best_score:
-                traceback[i,j] = "diag"
-            elif vertical_score == best_score:
-                traceback[i,j] = "vert"
-            else:
-                traceback[i,j] = "horz"
-                
-    return _global_msa_backtrack(left, right, traceback, left_length-1, right_length-1)
+            # Current pair is a gap column in profile 1
+            score_hori[i, j] = max(
+                (score_diag[i, j-1][0] + gap_open, "diag"),
+                (score_hori[i, j-1][0] + gap_extend, "hori"),
+                key = itemgetter(0)
+            )
+   
+    return _global_msa_backtrack(left, right, score_diag, score_vert, score_hori, left_length-1, right_length-1)
 
 
 def _walk_tree(
-        node:btm.Cluster | btm.Protein
+        node:btm.Cluster | btm.Protein,
+        backend: str,
+        gap_open: int,
+        gap_extend: int,
     ) -> btm.Profile:
     '''
     Recursive function to walk through the Cluster tree.
@@ -344,10 +351,23 @@ def _walk_tree(
     if isinstance(node, btm.Protein):
         return btm.Profile(name=[node.name], alignment=[list(node.sequence)])
 
-    left_profile = _walk_tree(node.left)
-    right_profile = _walk_tree(node.right)
+    left_profile = _walk_tree(node.left, backend, gap_open, gap_extend)
+    right_profile = _walk_tree(node.right, backend, gap_open, gap_extend)
 
-    return _merge(left_profile, right_profile)
+    if backend == "rust":
+        names, sequences = btrust._merge(
+            left_profile.name,
+            ["".join(seq) for seq in left_profile.alignment],
+            right_profile.name,
+            ["".join(seq) for seq in right_profile.alignment],
+            gap_open,
+            gap_extend,
+        )
+
+        return btm.Profile(name=names, alignment=[list(seq) for seq in sequences],
+)
+    else:
+        return _merge(left_profile, right_profile, gap_open, gap_extend)
 
 
 def _move_reference_sequence_to_top(
@@ -374,7 +394,10 @@ def _move_reference_sequence_to_top(
 
 
 def msa(
-        file:str
+        file:str,
+        backend:str,
+        gap_open:int,
+        gap_extend:int,
     ) -> btm.Profile:
     r'''
     Function that takes in sequences in FASTA format, and returns a multiple sequence alignemnt.
@@ -392,8 +415,8 @@ def msa(
         sequences = btp.parse_fasta_string(file, allow_x = True)
 
     reference_sequence = sequences[0]
-    
-    pairwise_alignments = _build_pairwise_alignments(sequences)
+
+    pairwise_alignments = _build_pairwise_alignments(sequences, backend)
 
     original_distance_matrix = _build_original_distance_matrix(sequences, pairwise_alignments)
 
@@ -401,7 +424,7 @@ def msa(
 
     arranged_tree = _move_reference_sequence_to_top(tree, reference_sequence)
 
-    return _walk_tree(arranged_tree)
+    return _walk_tree(arranged_tree, backend, gap_open, gap_extend)
 
 
 

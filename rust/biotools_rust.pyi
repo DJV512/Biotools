@@ -1,4 +1,7 @@
-def _align_protein(seq1: str, seq2: str) -> tuple[str, str]:
+def _align_protein(
+        seq1: str,
+        seq2: str
+    ) -> tuple[str, str]:
     """
     Perform pairwise protein sequence alignment using the Gotoh algorithm.
 
@@ -14,4 +17,22 @@ def _align_protein(seq1: str, seq2: str) -> tuple[str, str]:
         A tuple containing the two aligned protein sequences,
         including gap characters.
     """
+    ...
+
+def _merge(
+        left_names:list[str], 
+        left_sequences: list[str],
+        right_names:list[str],
+        right_sequences: list[str],
+        gap_open:float,
+        gap_extend:float,
+    ) -> tuple[list[str], list[str]]:
+    '''
+    Globally align two profiles, made up of already aligned sequences, using affine gap penalties.
+
+    Inputs are two Profiles to merge (separated out into their constituent lists of names and sequences to pass to rust),
+    as well as the gap open and gap extend penalties to use. This internal function does not perform input validation.
+
+    Returns a tuple of a list of sequence names, and a list of sequence alignments.
+    '''
     ...
