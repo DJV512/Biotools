@@ -1,7 +1,7 @@
 import buttle.pairwise_align as btpa
 import buttle.models as btm
 import buttle.parsers as btparse
-import buttle_rust as btrust
+from buttle import buttle_rust as btrust
 import pytest
 from hypothesis import given, Verbosity, settings, strategies as st
 from itertools import combinations

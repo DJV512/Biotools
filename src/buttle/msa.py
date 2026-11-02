@@ -8,7 +8,7 @@ from . import models as btm
 from . import constants as btc
 from . import parsers as btp
 from . import pairwise_align as btpa
-import buttle_rust as btrust
+from . import buttle_rust as btrust
 
 
 def _build_pairwise_alignments(

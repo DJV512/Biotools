@@ -8,7 +8,7 @@ lazy from . import comparisons as btcomp
 lazy from . import pairwise_align as bta
 lazy from . import models as btm
 lazy from . import pairwise_align as btpa
-lazy import buttle_rust as btrust
+lazy from . import buttle_rust as btrust
 
 
 def main():

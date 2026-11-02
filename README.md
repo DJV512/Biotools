@@ -1,5 +1,4 @@
-# Buttle
-
+![Logo](https://raw.githubusercontent.com/DJV512/Buttle/v0.3.0/docs/images/buttle_logo_with_tag.png)
 Buttle was developed as a lightweight collection of bioinformatics utilities for common sequence-analysis tasks, with an emphasis on convenient command-line use. It provides tools for working with DNA and protein sequences, including sequence manipulation, peptide properties, motif searching, pairwise alignment, and multiple sequence alignment.
 
 Buttle is currently under active development.
@@ -9,8 +8,8 @@ Buttle is currently under active development.
 ### General sequence tools
 
 - Search for sequences and report their positions
-- Returns the length of a sequence
-- Reports the percent identity between all sequences from a FASTA file
+- Calculate sequence length
+- Calculate pairwise percent identity for sequences in a FASTA file
 
 ### DNA sequences
 
@@ -21,35 +20,81 @@ Buttle is currently under active development.
 - Pairwise DNA sequence alignment
 
 ### Protein sequence tools
-- Calculate net charge
+- Calculate protein net charge
 - Calculate molecular weight
 - Calculate extinction coefficient
-- Search for and highlight N-linked glycosylation sites
+- Identify and highlight potential N-linked glycosylation sites
 - Compare two sequences and look for conserved motifs of varying lengths
 - Pairwise sequence alignment from two raw sequence arguments
-    - Default implementation in Rust, Python functions available
-- Multiple sequence alignment (MSA) from FASTA files or FASTA-Formatted strings
-    - Default implementation in Rust, Python functions available
+    - Rust backend by default, with a Python backend available
+- Multiple sequence alignment (MSA) from FASTA files or FASTA-formatted strings
+    - Rust backend by default, with a Python backend available
 
 
 ### Rendering
-- Alignments output to terminal (when no --save argument provided)
+- Display alignments in the terminal (when no `--save` argument provided)
 - Generate publication-quality PNG and TIFF alignment images
     - Save Pairwise DNA and protein alignments
-    - Save Multiple Sequence Alignment with proteins
-    - Alignment row length can be tuned with --wrap
-    - Argument --real-ruler displays amino acid residue number based on the first sequence, skipping gaps
-- Argument --diff displays alignment differences relative to a reference sequence
-- MSA optionally adds a consensus sequence with --consensus
+    - Save multiple protein sequence alignments
+    - Alignment row length can be tuned with `--wrap`
+    - Argument `--real-ruler` displays residue number based on the first sequence, skipping gaps
+- Argument `--diff` displays alignment differences relative to a reference sequence
+- MSA optionally adds a consensus sequence with `--consensus`
 
 
 ## Installation/Requirements
 
-Buttle is currently under development and is not yet available on PyPI.
+Buttle is distributed through PyPI and requires Python 3.15 or newer. Prebuilt wheels include both the Python modules and the compiled Rust extension, so Rust and Cargo are not required when installing a compatible wheel.
 
-Buttle requires Python 3.15 or later. Installation from source also requires a Rust toolchain (the Rust compiler and Cargo build system), which can be installed from https://rustup.rs, and uv.
 
-To verify that Rust is installed, run 
+### Command-line installation
+
+Install Buttle as a standalone command-line tool using uv:
+
+```bash
+uv tool install buttle
+```
+
+Alternatively, install it with pip:
+
+```bash
+pip install buttle
+```
+
+Once installed, run:
+
+```bash
+buttle --help
+```
+
+### Using Buttle in Python
+
+
+To add Buttle to an existing Python project:
+
+```bash
+uv add buttle
+```
+
+Or install it into your active Python environment:
+
+```bash
+pip install buttle
+```
+
+Buttle's Python modules can then be imported and used directly.
+```python
+from buttle import sequences
+
+# Use functions from the sequences module
+```
+
+### Building from source
+
+Prebuilt wheels include the compiled Rust extension, so Rust and Cargo are not required for normal installation on supported platforms.
+To build Buttle from source, you'll need Python 3.15+, Rust/Cargo, and a compatible build environment. The Rust toolchain (the Rust compiler and Cargo build system) can be installed from https://rustup.rs.
+
+To verify that Rust is installed, run
 
 ```bash
 rustc --version
@@ -58,9 +103,12 @@ cargo --version
 
 Rust is only required during installation to compile the extension; it is not required to run Buttle afterward.
 
+
+### Using uv to install buttle from source
+
 Installing uv:
 
-Buttle uses uv, a Python package and project manager, for installation.
+The following instructions use uv to install Buttle from source. Other Python build tools may also be used.
 If you don't already have uv installed, follow the official installation instructions at 
 
 https://docs.astral.sh/uv/getting-started/installation/
@@ -71,13 +119,13 @@ On macOS and Linux, you can install it with:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Verify the installion:
+Verify the installation:
 
 ```bash
 uv --version
 ```
 
-Install python 3.15:
+Install Python 3.15:
 
 ```bash
 uv python install 3.15
@@ -92,7 +140,7 @@ cd buttle
 Finally, install Buttle using uv:
 
 ```bash
-uv tool install .
+uv tool install --python 3.15 .
 ```
 
 After installation:
@@ -117,6 +165,8 @@ For help with an individual command:
 buttle msa -h
 ```
 
+## Development
+
 ### Rebuilding the Rust extension
 
 After modifying Rust source code, rebuild and reinstall Buttle
@@ -127,7 +177,7 @@ from the repository root:
 This recompiles the Rust extension and updates the globally
 installed `buttle` command.
 
-### Examples
+## Examples
 
 #### Translate DNA in all three forward reading frames.
 
@@ -163,7 +213,7 @@ Extinction Coefficient = 8370
 ```console
 $ buttle dna_align atctcatgcgtcgtacgtacgt tgcatgcgtacgtagtcgatgtc
 ```
-<img src="docs/images/dna_pairwise_align.png" alt="Pairwise DNA Alignment">
+![Pairwise DNA Alignment](https://raw.githubusercontent.com/DJV512/Buttle/v0.3.0/docs/images/dna_pairwise_align.png)
 
 #### Multiple Protein Sequence Alignment
 Buttle implements a custom progressive multiple protein sequence alignment algorithm using an average-linkage guide tree, BLOSUM62-based scoring, and tunable affine gap open and extension penalties. Optional "X" residues can be used as alignment anchors. Computationally intensive operations are accelerated using a Rust extension.
@@ -172,7 +222,7 @@ Buttle implements a custom progressive multiple protein sequence alignment algor
 ```console
 $ buttle msa docs/examples/synthetic_example_proteins.fasta --save docs/images/synthetic_alignment.png --diff --wrap 100
 ```
-<img src="docs/images/synthetic_alignment.png" alt="Multiple Protein Sequence Alignment">
+![Multiple Protein Sequence Alignment](https://raw.githubusercontent.com/DJV512/Buttle/v0.3.0/docs/images/synthetic_alignment.png)
 
 Conservative substitutions are shown in purple, non-conservative substitutions in red, and gaps as black dashes. When `--diff` is enabled, identities to the reference sequence are shown as dots.
 
@@ -188,9 +238,9 @@ When Buttle is installed, you can select the Python implementation for supported
 buttle msa sequences.fasta --backend python
 ```
 
-Omitting --backend uses the Rust implementation.
+Omitting `--backend` uses the Rust implementation.
 
-**Installation note:** The current Buttle installation requires the Rust extension, even when using the Python backend. Python-only installation is not currently supported.
+**Installation note:** Buttle includes a compiled Rust extension, even when using the Python alignment backend. Python-only installation is not currently supported.
 
 ## Development status
 
@@ -198,7 +248,7 @@ Buttle is currently in development. Interfaces and command-line options may chan
 
 - Multiple sequence alignment currently supports proteins only.
 - DNA alignment image output currently limited to PNG, and does not support some arguments.
-- Printing Cluster trees is VERY rough at the moment. 
+- Guide tree visualization is still experimental.
 
 ## License
 

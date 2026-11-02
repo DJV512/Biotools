@@ -9,3 +9,9 @@ htmlcov/
 .hypothesis/
 dist/
 /rust/target/
+
+#Compiled extensions
+*.so
+*.pyd
+*.dll
+*.dylib
