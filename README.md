@@ -1,8 +1,8 @@
-# BioTools
+# Buttle
 
-BioTools was developed as a lightweight collection of bioinformatics utilities for common sequence-analysis tasks, with an emphasis on convenient command-line use. It provides tools for working with DNA and protein sequences, including sequence manipulation, peptide properties, motif searching, pairwise alignment, and multiple sequence alignment.
+Buttle was developed as a lightweight collection of bioinformatics utilities for common sequence-analysis tasks, with an emphasis on convenient command-line use. It provides tools for working with DNA and protein sequences, including sequence manipulation, peptide properties, motif searching, pairwise alignment, and multiple sequence alignment.
 
-BioTools is currently under active development.
+Buttle is currently under active development.
 
 ## Features
 
@@ -45,9 +45,9 @@ BioTools is currently under active development.
 
 ## Installation/Requirements
 
-BioTools is currently under development and is not yet available on PyPI.
+Buttle is currently under development and is not yet available on PyPI.
 
-BioTools requires Python 3.15 or later. Installation from source also requires a Rust toolchain (the Rust compiler and Cargo build system), which can be installed from https://rustup.rs, and uv.
+Buttle requires Python 3.15 or later. Installation from source also requires a Rust toolchain (the Rust compiler and Cargo build system), which can be installed from https://rustup.rs, and uv.
 
 To verify that Rust is installed, run 
 
@@ -56,11 +56,11 @@ rustc --version
 cargo --version
 ```
 
-Rust is only required during installation to compile the extension; it is not required to run BioTools afterward.
+Rust is only required during installation to compile the extension; it is not required to run Buttle afterward.
 
 Installing uv:
 
-BioTools uses uv, a Python package and project manager, for installation.
+Buttle uses uv, a Python package and project manager, for installation.
 If you don't already have uv installed, follow the official installation instructions at 
 
 https://docs.astral.sh/uv/getting-started/installation/
@@ -85,11 +85,11 @@ uv python install 3.15
 
 Clone the repository:
 ```bash
-git clone https://github.com/DJV512/biotools/
-cd biotools
+git clone https://github.com/DJV512/buttle/
+cd buttle
 ```
 
-Finally, install BioTools using uv:
+Finally, install Buttle using uv:
 
 ```bash
 uv tool install .
@@ -97,42 +97,42 @@ uv tool install .
 
 After installation:
 ```bash
-biotools -h
+buttle -h
 ```
 
 ## Usage
 
-BioTools provides a command-line interface:
+Buttle provides a command-line interface:
 ```bash
-biotools <command> [options]
+buttle <command> [options]
 ```
 
 For a list of available commands:
 ```bash
-biotools -h
+buttle -h
 ```
 
 For help with an individual command:
 ```bash
-biotools msa -h
+buttle msa -h
 ```
 
 ### Rebuilding the Rust extension
 
-After modifying Rust source code, rebuild and reinstall BioTools
+After modifying Rust source code, rebuild and reinstall Buttle
 from the repository root:
 
     uv tool install --reinstall -e .
 
 This recompiles the Rust extension and updates the globally
-installed `biotools` command.
+installed `buttle` command.
 
 ### Examples
 
 #### Translate DNA in all three forward reading frames.
 
 ```console
-$ biotools translate acttactggtcgtagtca
+$ buttle translate acttactggtcgtagtca
 Frame 1: TYWS*S
 Frame 2: LTGRS
 Frame 3: LLVVV
@@ -141,7 +141,7 @@ Frame 3: LLVVV
 #### GC Content
 
 ```console
-$ biotools gc atgacggtagctagtagctacgtatcattcatctatccgcgcgtagtagtacgt
+$ buttle gc atgacggtagctagtagctacgtatcattcatctatccgcgcgtagtagtacgt
 Total bases: 54
 A: 13
 C: 12
@@ -153,7 +153,7 @@ GC Content: 46.30
 
 #### Display protein charge, molecular weight, and extinction coefficient together with props, or calculate each individually.
 ```console
-$ biotools props adlsykfehyaskgascwedasdkflsdad
+$ buttle props adlsykfehyaskgascwedasdkflsdad
 Charge = -4
 Molecular Weight = 3357.6
 Extinction Coefficient = 8370 
@@ -161,16 +161,16 @@ Extinction Coefficient = 8370
 
 #### Pairwise Alignment of DNA or Protein
 ```console
-$ biotools dna_align atctcatgcgtcgtacgtacgt tgcatgcgtacgtagtcgatgtc
+$ buttle dna_align atctcatgcgtcgtacgtacgt tgcatgcgtacgtagtcgatgtc
 ```
 <img src="docs/images/dna_pairwise_align.png" alt="Pairwise DNA Alignment">
 
 #### Multiple Protein Sequence Alignment
-BioTools implements a custom progressive multiple protein sequence alignment algorithm using an average-linkage guide tree, BLOSUM62-based scoring, and tunable affine gap open and extension penalties. Optional "X" residues can be used as alignment anchors. Computationally intensive operations are accelerated using a Rust extension.
+Buttle implements a custom progressive multiple protein sequence alignment algorithm using an average-linkage guide tree, BLOSUM62-based scoring, and tunable affine gap open and extension penalties. Optional "X" residues can be used as alignment anchors. Computationally intensive operations are accelerated using a Rust extension.
 
 
 ```console
-$ biotools msa docs/examples/synthetic_example_proteins.fasta --save docs/images/synthetic_alignment.png --diff --wrap 100
+$ buttle msa docs/examples/synthetic_example_proteins.fasta --save docs/images/synthetic_alignment.png --diff --wrap 100
 ```
 <img src="docs/images/synthetic_alignment.png" alt="Multiple Protein Sequence Alignment">
 
@@ -180,22 +180,21 @@ The sequences used in this example are available in
 [synthetic_example_proteins.fasta](docs/examples/synthetic_example_proteins.fasta).
 
 #### Rust vs Python
-The computationally intensive sequence alignment algorithms in BioTools were originally implemented in Python and subsequently ported to Rust to improve performance.
+The computationally intensive sequence alignment algorithms in Buttle were originally implemented in Python and subsequently ported to Rust to improve performance.
 The Rust implementations are used by default, but the original Python implementations remain available for comparison, testing, and experimentation.
-When BioTools is installed, you can select the Python implementation for supported alignment commands using:
+When Buttle is installed, you can select the Python implementation for supported alignment commands using:
 
 ```console
-biotools msa sequences.fasta --backend python
+buttle msa sequences.fasta --backend python
 ```
 
 Omitting --backend uses the Rust implementation.
 
-**Installation note:** The current BioTools installation requires the Rust extension, even when using the Python backend. Python-only installation is not currently supported.
+**Installation note:** The current Buttle installation requires the Rust extension, even when using the Python backend. Python-only installation is not currently supported.
 
 ## Development status
 
-BioTools is currently in development. Interfaces and command-line options
-may change before version 1.0. Known limitations include:
+Buttle is currently in development. Interfaces and command-line options may change before version 1.0. Known limitations include:
 
 - Multiple sequence alignment currently supports proteins only.
 - DNA alignment image output currently limited to PNG, and does not support some arguments.
@@ -203,4 +202,4 @@ may change before version 1.0. Known limitations include:
 
 ## License
 
-BioTools is licensed under the BSD 3-Clause License.
+Buttle is licensed under the BSD 3-Clause License.

@@ -1,4 +1,4 @@
-/// use biotools_rust::{pairwise_protein,merge,Profile};
+/// use buttle_rust::{pairwise_protein,merge,Profile};
 
 fn main() {
     /* 

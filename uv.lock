@@ -3,11 +3,11 @@ revision = 5
 requires-python = ">=3.15"
 
 [[package]]
-name = "biotools"
-version = "0.2.0"
+name = "buttle"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
-    { name = "biotools-rust" },
+    { name = "buttle-rust" },
     { name = "pillow" },
 ]
 
@@ -22,7 +22,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "biotools-rust", directory = "rust" },
+    { name = "buttle-rust", directory = "rust" },
     { name = "pillow", specifier = ">=12.3.0" },
 ]
 
@@ -36,8 +36,8 @@ dev = [
 ]
 
 [[package]]
-name = "biotools-rust"
-version = "0.2.0"
+name = "buttle-rust"
+version = "0.3.0"
 source = { directory = "rust" }
 
 [[package]]

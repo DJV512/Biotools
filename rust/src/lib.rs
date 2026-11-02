@@ -66,7 +66,7 @@ fn _merge(
 
 #[cfg(feature = "python")]
 #[pymodule]
-fn biotools_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn buttle_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(_align_protein, m)?)?;
     m.add_function(wrap_pyfunction!(_merge, m)?)?;
     Ok(())

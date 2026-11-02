@@ -5,7 +5,7 @@ lazy from . import constants as btc
 lazy from . import models as btm
 lazy from . import pairwise_align as btpa
 lazy from . import parsers as btp
-import biotools_rust as btrust
+import buttle_rust as btrust
 
 
 def motifs(protein1:btm.Protein, protein2:btm.Protein) -> dict:

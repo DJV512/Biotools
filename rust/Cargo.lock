@@ -3,8 +3,8 @@
 version = 4
 
 [[package]]
-name = "biotools_rust"
-version = "0.1.0"
+name = "buttle_rust"
+version = "0.3.0"
 dependencies = [
  "pyo3",
 ]

@@ -1,6 +1,10 @@
 # Changelog
 
-All notable changes to Biotools will be noted here.
+All notable changes to Buttle will be noted here.
+
+## [0.3.0] - 2026-11-02
+- Rebranded to Buttle: A command line utility for biological sequence analysis. At your service.
+
 
 ## [0.2.0] - 2026-10-30
 

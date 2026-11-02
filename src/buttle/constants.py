@@ -215,13 +215,13 @@ BLOSUM62 = {
     "V": {"A": 0,  "R": -3, "N": -3, "D": -3, "C": -1, "Q": -2, "E": -2, "G": -3, "H": -3, "I": 3,  "L": 1,  "K": -2, "M": 1,  "F": -1, "P": -2, "S": -2, "T": 0,  "W": -3, "Y": -1, "V": 4},
 }
 
-#Biotools augmented BLOSUM Comparison Table
-BIOTOOLS_COMPARE = deepcopy(BLOSUM62)
-BIOTOOLS_COMPARE["X"] = {}
-BIOTOOLS_COMPARE["X"]["X"] = 25
+#Buttle augmented BLOSUM Comparison Table
+BUTTLE_COMPARE = deepcopy(BLOSUM62)
+BUTTLE_COMPARE["X"] = {}
+BUTTLE_COMPARE["X"]["X"] = 25
 for aa in AMINO_ACIDS:
-    BIOTOOLS_COMPARE["X"][aa] = -25
-    BIOTOOLS_COMPARE[aa]["X"] = -25
+    BUTTLE_COMPARE["X"][aa] = -25
+    BUTTLE_COMPARE[aa]["X"] = -25
 
 
 
@@ -241,8 +241,7 @@ DNA_GAP = -3
 
 
 
-
-MY_HELP=f'''{BLUE_HELP}usage: {MAGENTA_HELP}biotools <command> [options]{RESET}
+MY_HELP=f'''{BLUE_HELP}usage: {MAGENTA_HELP}buttle <command> [options]{RESET}
 
 Command line utilities for DNA and protein sequence analysis.
 

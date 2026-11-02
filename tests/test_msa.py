@@ -1,6 +1,6 @@
 from hypothesis import given, Verbosity, settings, strategies as st
-import biotools.msa as btmsa
-import biotools.models as btm
+import buttle.msa as btmsa
+import buttle.models as btm
 import pytest
 
 protein_strategy = st.text(alphabet="ACDEFGHIKLMNPQRSTVWY",

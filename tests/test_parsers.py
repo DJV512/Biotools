@@ -1,5 +1,5 @@
-import biotools.parsers as btp
-import biotools.models as btm
+import buttle.parsers as btp
+import buttle.models as btm
 import pytest
 
 def test_fasta_reader_minimal_fasta(tmp_path):

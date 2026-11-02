@@ -194,7 +194,7 @@ def pairwise_protein(protein1:btm.Protein, protein2:btm.Protein) -> tuple[list[s
 
             #Choose best score for each of the three scoring matrices and add them
             #Current pair is a residue-residue alignment
-            residue_blosum_score = btc.BIOTOOLS_COMPARE[seq1[i]][seq2[j]]
+            residue_blosum_score = btc.BUTTLE_COMPARE[seq1[i]][seq2[j]]
             score_diag[(i, j)] = max(
                 (score_diag[(i - 1, j - 1)][0] + residue_blosum_score, "diag"),
                 (score_hori[(i - 1, j - 1)][0] + residue_blosum_score, "hori"),

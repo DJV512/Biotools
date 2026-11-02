@@ -8,7 +8,7 @@ lazy from . import comparisons as btcomp
 lazy from . import pairwise_align as bta
 lazy from . import models as btm
 lazy from . import pairwise_align as btpa
-lazy import biotools_rust as btrust
+lazy import buttle_rust as btrust
 
 
 def main():
@@ -16,8 +16,8 @@ def main():
     # Argument Parser Construction
 
     parser = argparse.ArgumentParser(
-        prog="biotools",
-        usage="biotools <command> [options]",
+        prog="buttle",
+        usage="buttle <command> [options]",
         add_help=False,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )

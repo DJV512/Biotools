@@ -1,5 +1,5 @@
-import biotools.renderers as btr
-import biotools.models as btm
+import buttle.renderers as btr
+import buttle.models as btm
 from PIL import Image
 
 def test_save_dna_alignment_image(tmp_path):

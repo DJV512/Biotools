@@ -39,7 +39,7 @@ def save_dna_pairwise_alignment(alignments:list[list[str]], filename:str, *, sta
     analyzed = _analyze_dna_alignments(alignments, diff)
 
     # Import font
-    font_path = files("biotools").joinpath("fonts", "JetBrainsMono-Regular.ttf")
+    font_path = files("buttle").joinpath("fonts", "JetBrainsMono-Regular.ttf")
 
     # Set Image parameters
     num_lines = len(alignments)
@@ -117,7 +117,7 @@ def render_protein_alignment_image(
     max_name_length = max(len(x) for x in final_alignment.name)  
 
     # Import font
-    font_path = files("biotools").joinpath("fonts", "JetBrainsMono-Regular.ttf")  
+    font_path = files("buttle").joinpath("fonts", "JetBrainsMono-Regular.ttf")  
     
     # Set Image parameters
     name_width = max_name_length + 3

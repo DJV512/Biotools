@@ -1,5 +1,5 @@
-import biotools.comparisons as btcomp
-import biotools.models as btm
+import buttle.comparisons as btcomp
+import buttle.models as btm
 import pytest
 
 def test_motifs():

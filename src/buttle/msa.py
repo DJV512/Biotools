@@ -8,7 +8,7 @@ from . import models as btm
 from . import constants as btc
 from . import parsers as btp
 from . import pairwise_align as btpa
-import biotools_rust as btrust
+import buttle_rust as btrust
 
 
 def _build_pairwise_alignments(
@@ -204,7 +204,7 @@ def _msa_sigma(
             elif left_residue == "-" or right_residue == "-":
                 score += btc.PROTEIN_GAP
             else:
-                score += btc.BIOTOOLS_COMPARE[left_residue][right_residue]
+                score += btc.BUTTLE_COMPARE[left_residue][right_residue]
     return score/comparisons
 
 
@@ -406,7 +406,7 @@ def msa(
 
     Command-line usage with a FASTA-formatted string:
 
-    "biotools msa $'>name1\nsequence1\n>name2\nsequence2\n>name3\nsequence3'"
+    "buttle msa $'>name1\nsequence1\n>name2\nsequence2\n>name3\nsequence3'"
     '''
 
     if Path(file).exists():

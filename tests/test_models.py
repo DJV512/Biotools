@@ -1,4 +1,4 @@
-import biotools.models as btm
+import buttle.models as btm
 import pytest
 from hypothesis import given, strategies as st
 

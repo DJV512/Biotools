@@ -1,4 +1,4 @@
-import biotools.sequences as bts
+import buttle.sequences as bts
 import pytest
 from collections import Counter
 
