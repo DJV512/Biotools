@@ -14,15 +14,19 @@ jobs:
           - name: Linux x86-64
             runner: ubuntu-latest
             target: x86_64
+            interpreter: /opt/python/cp315-cp315/bin/python
           - name: macOS Apple Silicon
             runner: macos-15
             target: aarch64
+            interpreter: python
           - name: macOS Intel
             runner: macos-15-intel
             target: x86_64
+            interpreter: python
           - name: Windows x86-64
             runner: windows-latest
-            target: x64_64
+            target: x86_64
+            interpreter: python
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +41,7 @@ jobs:
           args: >-
             --release
             --out dist
-            --interpreter python
+            --interpreter ${{ matrix.platform.interpreter }}
           sccache: true
           manylinux: auto
 
