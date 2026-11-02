@@ -1,0 +1,69 @@
+name: Build Buttle
+
+on:
+  workflow_dispatch:
+
+jobs:
+  wheels:
+    name: Build ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: Linux x86-64
+            runner: ubuntu-latest
+            target: x86_64
+          - name: macOS Apple Silicon
+            runner: macos-15
+            target: aarch64
+          - name: macOS Intel
+            runner: macos-15-intel
+            target: x86_64
+          - name: Windows x86-64
+            runner: windows-latest
+            target: x64_64
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.15
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.15'
+      - name: Build wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: >-
+            --release
+            --out dist
+            --interpreter python
+          sccache: true
+          manylinux: auto
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.platform.target }}-${{ runner.os }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build source distribution
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+
+      - name: Upload source distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
