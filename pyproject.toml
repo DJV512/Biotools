@@ -7,7 +7,7 @@ license = "BSD-3-Clause"
 requires-python = ">=3.15"
 dependencies = [
     "pillow>=12.3.0",
-    "buttle-rust",
+    "buttle-rust==0.3.0",
 ]
 
 [project.scripts]
